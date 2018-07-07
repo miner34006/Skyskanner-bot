@@ -2,6 +2,7 @@ import unittest
 
 from UserAgentParser import UserAgentParser
 
+
 class UserAgentParserTestCase(unittest.TestCase):
     def test_initialization(self):
         parser = UserAgentParser()
@@ -75,4 +76,3 @@ class UserAgentParserTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-    
