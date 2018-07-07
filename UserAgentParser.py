@@ -114,3 +114,4 @@ class UserAgentParser:
         """
         for userAgent in userAgents:
             self.__userAgents.append(userAgent)
+
