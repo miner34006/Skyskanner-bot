@@ -97,6 +97,8 @@ class UserAgentParser:
         :param software: link to software
         :return: list of user agents
         """
+        if software not in self.SOFTWARE.values():
+            raise ValueError('Invalid function parameter')
 
         response = requests.get(software)
         soup = BeautifulSoup(response.content, "html.parser")
