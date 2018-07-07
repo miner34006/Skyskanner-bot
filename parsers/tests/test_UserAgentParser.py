@@ -1,6 +1,6 @@
 import unittest
 
-from UserAgentParser import UserAgentParser
+from parsers.UserAgentParser import UserAgentParser
 
 
 class UserAgentParserTestCase(unittest.TestCase):
