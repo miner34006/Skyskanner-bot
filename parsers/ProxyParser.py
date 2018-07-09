@@ -14,36 +14,68 @@ from parsers.Proxy import Proxy
 
 
 class ProxyParser:
-
-    PROXY_WEBSITE = 'https://free-proxy-list.net'
+    """
+    Class that parses the website (https://free-proxy-list.net) and
+    gets actual proxies (random proxy or list of it).
+     """
 
     def __init__(self):
         self.__hasProxies = False
         self.__proxies = []
 
     def getRandomProxy(self):
+        """
+        Select random Proxy from self.__proxies
+
+        :return: Proxy
+        """
         if not self.__hasProxies:
             self.__createProxies()
         return random.choice(self.__proxies)
 
     def getProxies(self):
+        """
+        Getting self.__proxies
+
+        :return: list of Proxy
+        """
         if not self.__hasProxies:
             self.__createProxies()
         return self.__proxies
 
     def updateProxies(self):
+        """
+         Updates self._proxies
+
+         :return: None
+         """
         self.__clearProxies()
         self.__createProxies()
 
     def __createProxies(self):
+        """
+        Creates self.__proxies and changes __hasProxies flag
+
+        :return: None
+        """
         self.__proxies = self.__parseProxies()
         self.__hasProxies = True
 
     def __clearProxies(self):
+        """
+         Clears self.__proxies and changes __hasProxies flag
+
+         :return: None
+         """
         self.__proxies = []
         self.__hasProxies = False
 
     def __parseProxies(self):
+        """
+         Parses the website and finds actual proxies
+
+         :return: list of Proxies
+         """
         url = 'https://free-proxy-list.net/'
         response = requests.get(url).content
         soup = BeautifulSoup(response, "html.parser")
