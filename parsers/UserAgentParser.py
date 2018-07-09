@@ -6,11 +6,11 @@ Created on 07.07.2018
 :author: Polianok Bogdan
 """
 
-import requests
 import random
-from bs4 import BeautifulSoup
-from multiprocessing.dummy import Pool
 import sys
+from bs4 import BeautifulSoup
+import requests
+from multiprocessing.dummy import Pool
 
 
 class UserAgentParser:
@@ -62,7 +62,7 @@ class UserAgentParser:
 
     def __createUserAgents(self):
         """
-        Creates self.__userAgents
+        Creates self.__userAgents and changes __hasUserAgents flag
 
         :return: None
         """
@@ -83,7 +83,7 @@ class UserAgentParser:
 
     def __clearUserAgents(self):
         """
-        Clears self.__userAgents
+        Clears self.__userAgents and changes __hasUserAgents flag
 
         :return: None
         """
