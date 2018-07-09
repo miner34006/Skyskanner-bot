@@ -64,3 +64,4 @@ class ProxyParser:
             proxyList.append(proxy)
 
         return proxyList
+
