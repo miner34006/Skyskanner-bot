@@ -9,7 +9,7 @@ Created on 07.07.2018
 import requests
 import random
 from bs4 import BeautifulSoup
-from multiprocessing.dummy import Pool as ThreadPool
+from multiprocessing.dummy import Pool
 import sys
 
 
@@ -66,7 +66,7 @@ class UserAgentParser:
 
         :return: None
         """
-        pool = ThreadPool(5)
+        pool = Pool(5)
 
         try:
             results = pool.map(self.__parseUserAgents, self.SOFTWARE.values())
