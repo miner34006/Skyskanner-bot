@@ -8,6 +8,10 @@ Created on 09.07.2018
 
 
 class Proxy:
+    """
+    Representation of proxy. Store needed information about proxy
+    server like IP address, port and type of connection
+    """
     def __init__(self, ipAddress, port, https):
         self.ipAddress = ipAddress
         self.port = port
