@@ -19,3 +19,4 @@ class Proxy:
             self.ipAddress,
             self.port
         )
+
