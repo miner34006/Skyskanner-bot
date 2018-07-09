@@ -1,5 +1,12 @@
-import unittest
+# coding: utf-8
 
+"""
+Created on 07.07.2018
+
+:author: Polianok Bogdan
+"""
+
+import unittest
 from parsers.UserAgentParser import UserAgentParser
 
 
