@@ -11,6 +11,7 @@ class UserAgentParserTestCase(unittest.TestCase):
 
     def test_clearUserAgents(self):
         parser = UserAgentParser()
+        parser.getUserAgents()
         parser._UserAgentParser__clearUserAgents()
         self.assertFalse(parser._UserAgentParser__hasUserAgents)
         self.assertListEqual([], parser._UserAgentParser__userAgents)
