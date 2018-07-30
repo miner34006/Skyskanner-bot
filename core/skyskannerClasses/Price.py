@@ -10,7 +10,8 @@ from functools import total_ordering
 
 @total_ordering
 class Price:
-    """Class represented Price object in skyskanner website response
+    """
+    Class represented Price object in skyskanner website response
 
     """
     def __init__(self, jsonPrice):

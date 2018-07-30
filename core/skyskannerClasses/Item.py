@@ -8,7 +8,8 @@ Created on 30.07.2018
 
 
 class Item:
-    """Class represented Item object in skyskanner website response
+    """
+    Class represented Item object in skyskanner website response
 
     """
     def __init__(self, jsonItem):
