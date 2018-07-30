@@ -8,7 +8,9 @@ Created on 07.07.2018
 
 import random
 import requests
+from multiprocessing.dummy import Pool
 from bs4 import BeautifulSoup
+
 
 from parsers.Proxy import Proxy
 
@@ -17,62 +19,104 @@ class ProxyParser:
     """
     Class that parses the website (https://free-proxy-list.net) and
     gets actual proxies (random proxy or list of it).
+
      """
 
     def __init__(self):
-        self.__hasProxies = False
-        self.__proxies = []
+        self._hasProxies = False
+        self._proxies = []
 
     def getRandomProxy(self):
         """
-        Select random Proxy from self.__proxies
+        Select random Proxy from self._proxies
 
         :return: Proxy
         """
-        if not self.__hasProxies:
-            self.__createProxies()
-        return random.choice(self.__proxies)
+        if not self._hasProxies:
+            self._createProxies()
+        return random.choice(self._proxies)
+
+    def getRandomHttpsProxy(self):
+        """
+        select and return random https proxy from self._proxies
+
+        :return: random https proxy
+        """
+        if not self._hasProxies:
+            self._createProxies()
+        return random.choice([proxy for proxy in self._proxies if proxy.https])
+
+    def getRandomHttpProxy(self):
+        """
+        select and return random http proxy from self._proxies
+
+        :return: random http proxy
+        """
+        if not self._hasProxies:
+            self._createProxies()
+        return random.choice([proxy for proxy in self._proxies if not proxy.https])
 
     def getProxies(self):
         """
-        Getting self.__proxies
+        Getting self._proxies
 
         :return: list of Proxy
         """
-        if not self.__hasProxies:
-            self.__createProxies()
-        return self.__proxies
+        if not self._hasProxies:
+            self._createProxies()
+        return self._proxies
 
     def updateProxies(self):
         """
-         Updates self._proxies
+        Updates self._proxies
 
          :return: None
          """
-        self.__clearProxies()
-        self.__createProxies()
+        self._clearProxies()
+        self._createProxies()
 
-    def __createProxies(self):
+    def _createProxies(self):
         """
-        Creates self.__proxies and changes __hasProxies flag
+        Creates self._proxies and changes _hasProxies flag
 
         :return: None
         """
-        self.__proxies = self.__parseProxies()
-        self.__hasProxies = True
+        self._proxies = self._parseProxies()
+        self._hasProxies = True
 
-    def __clearProxies(self):
+    def _clearProxies(self):
         """
-         Clears self.__proxies and changes __hasProxies flag
+        Clears self._proxies and changes _hasProxies flag
 
          :return: None
          """
-        self.__proxies = []
-        self.__hasProxies = False
+        self._proxies = []
+        self._hasProxies = False
 
-    def __parseProxies(self):
+    def _checkProxy(self, proxy):
         """
-         Parses the website and finds actual proxies
+        checks proxy functionality
+
+        :param proxy: proxy needed to check
+        :return: proxy if working, None instead
+        """
+        proxies = {}
+        if proxy.https:
+            proxies.update({'https': str(proxy)})
+        else:
+            proxies.update({'http': str(proxy)})
+
+        url = 'https://www.google.ru'
+        try:
+            requests.get(url, proxies=proxies, timeout=3)
+        except requests.exceptions.RequestException as e:
+            return None
+        else:
+            return proxy
+
+    def _parseProxies(self):
+        """
+        Parses the website and finds actual proxies
 
          :return: list of Proxies
          """
@@ -95,5 +139,8 @@ class ProxyParser:
             proxy = Proxy(ipAddress, port, https)
             proxyList.append(proxy)
 
-        return proxyList
+        pool = Pool(20)
+        activeProxies = pool.map(self._checkProxy, proxyList)
+
+        return [proxy for proxy in activeProxies if proxy is not None]
 
