@@ -38,7 +38,7 @@ class UserAgentParser:
         :return: random user agent
         """
         if not self.__hasUserAgents:
-            self.__createUserAgents()
+            self._createUserAgents()
         return random.choice(self.__userAgents)
 
     def getUserAgents(self):
@@ -48,7 +48,7 @@ class UserAgentParser:
         :return: user agents list
         """
         if not self.__hasUserAgents:
-            self.__createUserAgents()
+            self._createUserAgents()
         return self.__userAgents
 
     def updateUserAgents(self):
@@ -57,10 +57,10 @@ class UserAgentParser:
 
         :return: None
         """
-        self.__clearUserAgents()
-        self.__createUserAgents()
+        self._clearUserAgents()
+        self._createUserAgents()
 
-    def __createUserAgents(self):
+    def _createUserAgents(self):
         """
         Creates self.__userAgents and changes __hasUserAgents flag
 
@@ -69,7 +69,7 @@ class UserAgentParser:
         pool = Pool(5)
 
         try:
-            results = pool.map(self.__parseUserAgents, self.SOFTWARE.values())
+            results = pool.map(self._parseUserAgents, self.SOFTWARE.values())
         except requests.exceptions.RequestException as e:
             print(e)
             sys.exit(1)
@@ -78,10 +78,10 @@ class UserAgentParser:
             pool.join()
 
         for element in results:
-            self.__appendToUserAgents(element)
+            self._appendToUserAgents(element)
         self.__hasUserAgents = True
 
-    def __clearUserAgents(self):
+    def _clearUserAgents(self):
         """
         Clears self.__userAgents and changes __hasUserAgents flag
 
@@ -90,7 +90,7 @@ class UserAgentParser:
         self.__userAgents = []
         self.__hasUserAgents = False
 
-    def __parseUserAgents(self, software):
+    def _parseUserAgents(self, software):
         """
         Parses the website and finds associated user agents with the software
 
@@ -105,7 +105,7 @@ class UserAgentParser:
         userAgents = soup.find_all('td', class_='useragent')
         return [userAgent.string for userAgent in userAgents]
 
-    def __appendToUserAgents(self, userAgents):
+    def _appendToUserAgents(self, userAgents):
         """
         Append elements of user agents list to self.__userAgents
 
