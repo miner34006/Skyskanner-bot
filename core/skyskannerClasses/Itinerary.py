@@ -10,12 +10,13 @@ from core.skyskannerClasses.PricingOption import PricingOption
 
 
 class Itinerary:
-    """Class represented Itinerary object in skyskanner website response
+    """
+    Class represented Itinerary object in skyskanner website response
 
     """
-    def __init__(self, jsonItinerary):
+    def __init__(self, jsonItinerary, legs=[]):
         self.id = jsonItinerary['id']
-        self.leg_ids = [id for id in jsonItinerary['leg_ids']]
+        self.legs = legs
 
         self.pricing_options = []
         for option in jsonItinerary['pricing_options']:
@@ -26,22 +27,27 @@ class Itinerary:
 
     def __str__(self):
         returnString = \
-            'Itinerary:\n\tid = {id},\n\tleg ids = [{leg_ids}],\n\tpricing options = [\n\t\t{pricing_options}\n\t]'.format(
+            'Itinerary:\n\tid = {id},\n\tpricing options = [\n\t\t{pricing_options}\n\t]'.format(
             id=self.id,
-            leg_ids=','.join(self.leg_ids),
             pricing_options=',\n\t\t'.join([str(option) for option in self.pricing_options]))
 
         return returnString
 
-    def getCheapestPriceOption(self):
-        """get the cheapest PricingOption from Itinerary.pricing_options
-
-        :return: cheapest PricingOption
-        :rtype: skyskannerClasses.PricingOption.PricingOption
+    def getCheapestPriceOptions(self):
         """
-        priceOption = None
+        get the cheapest PricingOption from Itinerary.pricing_options
+
+        :return: cheapest PricingOptions
+        :rtype: list
+        """
+        self.pricing_options.sort(key=lambda x: x.price)
+
+        cheapestOption = [self.pricing_options[0]]
         for option in self.pricing_options:
-            if (priceOption is None) or (option < priceOption):
-                priceOption = option
-        return priceOption
+            if option == cheapestOption[0]:
+                cheapestOption.append(option)
+            else:
+                break
+
+        return cheapestOption
 
