@@ -15,11 +15,11 @@ class Proxy:
     def __init__(self, ipAddress, port, https):
         self.ipAddress = ipAddress
         self.port = port
-        self.https = https
+        self.https = (https == 'yes')
 
     def __str__(self):
         return '{0}://{1}:{2}'.format(
-            (lambda connection: 'https' if self.https == 'yes' else 'http')(self.https),
+            (lambda connection: 'https' if self.https else 'http')(self.https),
             self.ipAddress,
             self.port
         )
