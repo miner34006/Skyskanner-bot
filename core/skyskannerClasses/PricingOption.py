@@ -14,7 +14,8 @@ from core.skyskannerClasses.Price import Price
 
 @total_ordering
 class PricingOption:
-    """Class represented Pricing Option object in skyskanner website response
+    """
+    Class represented Pricing Option object in skyskanner website response
 
     """
     def __init__(self, jsonPricingOption):
@@ -35,4 +36,13 @@ class PricingOption:
 
     def __gt__(self, other):
         return self.price > other.price
+
+    def getLinkForBuying(self):
+        """
+        get a link on which you can buy a ticket
+
+        :return: link to the market
+        :rtype: str
+        """
+        return 'https://www.skyscanner.ru' + self.items[0].url
 
