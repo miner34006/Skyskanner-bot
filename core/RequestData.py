@@ -10,7 +10,8 @@ import json
 
 
 class Leg:
-    """class represented the way from one point to another in some date,
+    """
+    class represented the way from one point to another in some date,
 
     """
     def __init__(self, origin, destination, date):
@@ -20,7 +21,8 @@ class Leg:
 
 
 class RequestData:
-    """class, needed to create json data for request
+    """
+    class, needed to create json data for request
 
     """
     def __init__(self, legs, market='RU', currency='RUB', locale='ru-RU',
@@ -41,7 +43,8 @@ class RequestData:
         self.include_mixed_booking_options = include_mixed_booking_options
 
     def getJsonRepresentation(self):
-        """get json representation of data for request
+        """
+        get json representation of data for request
 
         :return: data in json format
         :rtype: str
