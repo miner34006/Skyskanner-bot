@@ -6,29 +6,33 @@ Created on 29.07.2018
 :author: Polianok Bogdan
 """
 
-
 import json
-import time
 
 import requests
 
 from core.RequestData import RequestData, Leg
 from core.skyskannerClasses.Itinerary import Itinerary
-from core.utils.decorators import deprecated
 from parsers.ProxyParser import ProxyParser
 from parsers.UserAgentParser import UserAgentParser
+from core.utils.utils import findLegs
 
 
 class SkyScanner:
-    baseUrl = 'https://www.skyscanner.ru/g/conductor/v1/fps3/search/?geo_schema=skyscanner&carrier_schema=skyscanner&response_include=query'
+    baseUrl = 'https://www.skyscanner.ru/g/conductor/v1/fps3/search/?geo_schema=skyscanner&carrier_schema=skyscanner&response_include=query%3Bdeeplink%3Bsegment%3Bstats%3Bfqs%3Bpqs%3B_flights_availability'
 
     def __init__(self):
         self._userAgents = UserAgentParser()
         self._proxies = ProxyParser()
-        self._userAgents.updateUserAgents()
-        self._proxies.updateProxies()
 
     def _sendRequest(self, trip, useProxy=False):
+        """
+        send request and get the data with all flights
+
+        :param trip: object containing data for request
+        :param useProxy: flag to use proxy
+        :return: response from server
+        :rtype: requests.response
+        """
         headers = {
             'Content-Type': 'application/json; charset=UTF-8',
             'X-Skyscanner-ChannelId': 'website',
@@ -50,62 +54,53 @@ class SkyScanner:
         else:
             raise requests.exceptions.HTTPError(response.text)
 
+    def getItineraries(self, trip, useProxy=False):
+        """
+        make request, parse it and get list with Itineraries
 
-
-    #TODO
-    @deprecated
-    def getDirectTickets(self, trip):
-        jsonResponse = json.loads(self._sendRequest(trip).text)
-        directLegs = [leg for leg in jsonResponse['legs'] if leg['stop_count'] == 0]
+        :param trip: object containing data for request
+        :param useProxy: flag to use proxy
+        :return: list with Itinerary objects
+        :rtype: list
+        """
+        jsonResponse = json.loads(self._sendRequest(trip, useProxy).text)
 
         itineraries = []
         for itinerary in jsonResponse['itineraries']:
-            for leg in directLegs:
-                if leg['id'] in itinerary['leg_ids']:
-                    itineraries.append(Itinerary(itinerary))
+            for option in itinerary['pricing_options']:
+                if 'amount' not in option['price'].keys():
+                    continue
+
+                legs = findLegs(jsonResponse, itinerary['leg_ids'][0])
+                itineraries.append(Itinerary(itinerary, legs))
 
         return itineraries
 
-    #TODO
-    @deprecated
-    def getTickets(self, trip, bottomPrice, topPrice, isDirect=False, count=5):
-        jsonResponse = json.loads(self._sendRequest(trip).text)
+    def scan(self, function, filters=[], *args, **kwargs):
+        """
+        scan the itineraries using function
 
-        tickets = []
-        for itinerary in jsonResponse['itineraries']:
-            for option in itinerary['pricing_options']:
-                if 'amount' not in option['price'].keys():
-                    continue
+        :param function: function needed to execute
+        :param args: non-keyworded params
+        :param kwargs: keyworded params
+        :return: function()
+        """
+        while True:
+            itineraries = function(*args, **kwargs)
+            for filter in filters:
+                itineraries = filter(itineraries)
 
-                if bottomPrice < option['price']['amount'] < topPrice:
-                    tickets.append(itinerary)
+            yield itineraries
 
-        return tickets
-
-    def getCheapestTicket(self, trip, useProxy=False):
-        jsonResponse = json.loads(self._sendRequest(trip, useProxy).text)
-
-        cheapestTicket = {'ticket': None, 'amount': None}
-        for itinerary in jsonResponse['itineraries']:
-            for option in itinerary['pricing_options']:
-                if 'amount' not in option['price'].keys():
-                    continue
-
-                if (cheapestTicket['ticket'] is None) or (option['price']['amount'] < cheapestTicket['amount']):
-                    cheapestTicket['ticket'] = itinerary
-                    cheapestTicket['amount'] = option['price']['amount']
-
-        return Itinerary(cheapestTicket['ticket'])
 
 if __name__ == '__main__':
-    scanner = SkyScanner()
-    trip = RequestData([Leg(origin='MOSC', destination='VVO', date='2018-08-01')])
+    from core.filters import filter_onlyCheapest, filter_onlyDirect
 
-    for _ in range(1000):
-        try:
-            minPrice = scanner.getCheapestTicket(trip, useProxy=True).getMinPrice()
-            print(minPrice)
-        except requests.exceptions.RequestException as e:
-            print(e)
-            time.sleep(3)
+    scanner = SkyScanner()
+    trip = RequestData([Leg(origin='VVO', destination='MOSC', date='2018-08-01')])
+
+    filters = [filter_onlyDirect]
+    for itineraries in scanner.scan(scanner.getItineraries, filters, trip=trip):
+        print(itineraries)
+
 
