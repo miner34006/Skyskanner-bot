@@ -76,17 +76,18 @@ class SkyScanner:
 
         return itineraries
 
-    def scan(self, function, filters=[], *args, **kwargs):
+    def scan(self, filters=[], *args, **kwargs):
         """
-        scan the itineraries using function
+        scan the itineraries
 
-        :param function: function needed to execute
+        :param filters: filters applied to result
         :param args: non-keyworded params
         :param kwargs: keyworded params
-        :return: function()
+        :return: list with itineraries
+        :rtype: list
         """
         while True:
-            itineraries = function(*args, **kwargs)
+            itineraries = self.getItineraries(*args, **kwargs)
             for filter in filters:
                 itineraries = filter(itineraries)
 
@@ -100,7 +101,5 @@ if __name__ == '__main__':
     trip = RequestData([Leg(origin='VVO', destination='MOSC', date='2018-08-01')])
 
     filters = [filter_onlyDirect]
-    for itineraries in scanner.scan(scanner.getItineraries, filters, trip=trip):
+    for itineraries in scanner.scan(filters, trip=trip):
         print(itineraries)
-
-
