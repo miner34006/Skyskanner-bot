@@ -98,7 +98,7 @@ if __name__ == '__main__':
     from core.filters import filter_onlyCheapest, filter_onlyDirect
 
     scanner = SkyScanner()
-    trip = RequestData([Leg(origin='VVO', destination='MOSC', date='2018-08-01')])
+    trip = RequestData([{'origin': 'VVO', 'destination': 'MOSC', 'date': '2018-08-01'}])
 
     filters = [filter_onlyDirect]
     for itineraries in scanner.scan(filters, trip=trip):
