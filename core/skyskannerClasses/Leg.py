@@ -21,3 +21,4 @@ class Leg:
         self.duration = jsonLeg['duration']
         self.origin_place_id = jsonLeg['origin_place_id']
         self.stop_count = jsonLeg['stop_count']
+
