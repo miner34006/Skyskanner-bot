@@ -10,7 +10,7 @@ import json
 
 import requests
 
-from core.RequestData import RequestData, Leg
+from core.RequestData import RequestData
 from core.skyskannerClasses.Itinerary import Itinerary
 from parsers.ProxyParser import ProxyParser
 from parsers.UserAgentParser import UserAgentParser
