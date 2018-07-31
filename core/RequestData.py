@@ -9,17 +9,6 @@ Created on 29.07.2018
 import json
 
 
-class Leg:
-    """
-    class represented the way from one point to another in some date,
-
-    """
-    def __init__(self, origin, destination, date):
-        self.origin = origin
-        self.destination = destination
-        self.date = date
-
-
 class RequestData:
     """
     class, needed to create json data for request
@@ -52,7 +41,7 @@ class RequestData:
         data = {
             'market': self.market, 'currency': self.currency, 'locale': self.locale, 'cabin_class': self.cabin_class,
             'prefer_directs': self.prefer_directs, 'trip_type': self.trip_type,
-            'legs': [vars(leg) for leg in self.legs],
+            'legs': [leg for leg in self.legs],
             'adults': self.adults, 'child_ages': self.child_ages,
             'options': {'include_unpriced_itineraries': self.include_unpriced_itineraries, 'include_mixed_booking_option': self.include_mixed_booking_options}
         }
