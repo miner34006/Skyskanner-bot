@@ -22,7 +22,10 @@ class SkyScanner:
 
     def __init__(self):
         self._userAgents = UserAgentParser()
+        self._userAgents.updateUserAgents()
+
         self._proxies = ProxyParser()
+        #self._proxies.updateProxies()
 
     def _sendRequest(self, trip, useProxy=False):
         """
@@ -98,8 +101,10 @@ if __name__ == '__main__':
     from core.filters import filter_onlyCheapest, filter_onlyDirect
 
     scanner = SkyScanner()
-    trip = RequestData([{'origin': 'VVO', 'destination': 'MOSC', 'date': '2018-08-01'}])
+    trip = RequestData([{'origin': 'VVO', 'destination': 'MOSC', 'date': '2018-08-30'}])
 
-    filters = [filter_onlyDirect]
+    filters = [filter_onlyCheapest]
     for itineraries in scanner.scan(filters, trip=trip):
-        print(itineraries)
+        for obj in itineraries:
+            print(obj)
+
