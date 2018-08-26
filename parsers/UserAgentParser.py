@@ -28,8 +28,8 @@ class UserAgentParser:
     }
 
     def __init__(self):
-        self.__hasUserAgents = False
-        self.__userAgents = []
+        self._hasUserAgents = False
+        self._userAgents = []
 
     def getRandomUserAgent(self):
         """
@@ -37,9 +37,9 @@ class UserAgentParser:
 
         :return: random user agent
         """
-        if not self.__hasUserAgents:
+        if not self._hasUserAgents:
             self._createUserAgents()
-        return random.choice(self.__userAgents)
+        return random.choice(self._userAgents)
 
     def getUserAgents(self):
         """
@@ -47,9 +47,9 @@ class UserAgentParser:
 
         :return: user agents list
         """
-        if not self.__hasUserAgents:
+        if not self._hasUserAgents:
             self._createUserAgents()
-        return self.__userAgents
+        return self._userAgents
 
     def updateUserAgents(self):
         """
@@ -79,7 +79,7 @@ class UserAgentParser:
 
         for element in results:
             self._appendToUserAgents(element)
-        self.__hasUserAgents = True
+        self._hasUserAgents = True
 
     def _clearUserAgents(self):
         """
@@ -87,8 +87,8 @@ class UserAgentParser:
 
         :return: None
         """
-        self.__userAgents = []
-        self.__hasUserAgents = False
+        self._userAgents = []
+        self._hasUserAgents = False
 
     def _parseUserAgents(self, software):
         """
@@ -113,5 +113,5 @@ class UserAgentParser:
         :return: None
         """
         for userAgent in userAgents:
-            self.__userAgents.append(userAgent)
+            self._userAgents.append(userAgent)
 
