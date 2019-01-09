@@ -6,9 +6,6 @@ Created on 07.07.2018
 :author: Polianok Bogdan
 """
 
-import sys
-sys.path.append('/Users/miner34006/Documents/python/projects/skyscannerBot')
-
 import unittest
 from parsers.UserAgentParser import UserAgentParser
 

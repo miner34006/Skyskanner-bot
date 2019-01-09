@@ -7,21 +7,23 @@ Created on 22.09.2018
 """
 
 from vkApi.Menu import MainMenu
-from core.Skyskanner import SkyScanner
 
 
 class UserSession:
     """
     class represented one session with single unique user (one session for each user)
     """
-    def __init__(self, userId):
+    def __init__(self, userId, scanner):
+
+        # TODO get/set data from/to DB
         self._sourceCity = None
         self._targetCity = None
 
         self.userId = userId
+        self.thread = None
 
         self.menu = MainMenu(self)
-        self.scanner = SkyScanner()
+        self.scanner = scanner
 
     @property
     def sourceCity(self):

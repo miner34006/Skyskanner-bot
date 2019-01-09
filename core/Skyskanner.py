@@ -12,20 +12,15 @@ import requests
 
 from core.RequestData import RequestData
 from core.skyskannerClasses.Itinerary import Itinerary
-from parsers.ProxyParser import ProxyParser
-from parsers.UserAgentParser import UserAgentParser
 from core.utils.utils import findLegs
 
 
 class SkyScanner:
     baseUrl = 'https://www.skyscanner.ru/g/conductor/v1/fps3/search/?geo_schema=skyscanner&carrier_schema=skyscanner&response_include=query%3Bdeeplink%3Bsegment%3Bstats%3Bfqs%3Bpqs%3B_flights_availability'
 
-    def __init__(self):
-        self._userAgents = UserAgentParser()
-        self._userAgents.updateUserAgents()
-
-        self._proxies = ProxyParser()
-        #self._proxies.updateProxies()
+    def __init__(self, userAgents, proxies):
+        self._userAgents = userAgents
+        self._proxies = proxies
 
     def _sendRequest(self, trip, useProxy=False):
         """
@@ -39,7 +34,7 @@ class SkyScanner:
         headers = {
             'Content-Type': 'application/json; charset=UTF-8',
             'X-Skyscanner-ChannelId': 'website',
-            'User-Agent': self._userAgents.getRandomUserAgent(),
+            # 'User-Agent': self._userAgents.getRandomUserAgent(),
         }
 
         proxies = {}
@@ -95,16 +90,3 @@ class SkyScanner:
                 itineraries = filter(itineraries)
 
             yield itineraries
-
-
-if __name__ == '__main__':
-    from core.filters import filter_onlyCheapest, filter_onlyDirect
-
-    scanner = SkyScanner()
-    trip = RequestData([{'origin': 'VVO', 'destination': 'MOSC', 'date': '2018-08-30'}])
-
-    filters = [filter_onlyCheapest]
-    for itineraries in scanner.scan(filters, trip=trip):
-        for obj in itineraries:
-            print(obj)
-

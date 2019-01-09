@@ -40,9 +40,25 @@ class ButtonsEnum:
     search = {
         'action': {
             'type': 'text',
-            'label': 'Показать самые дешевый билет',
+            'label': 'Поиск билета',
         },
         'color': 'positive'
+    }
+
+    searchStart = {
+        'action': {
+            'type': 'text',
+            'label': 'Начать поиск',
+        },
+        'color': 'positive'
+    }
+
+    searchStop = {
+        'action': {
+            'type': 'text',
+            'label': 'Остановить поиск',
+        },
+        'color': 'primary'
     }
 
 

@@ -121,7 +121,12 @@ class ProxyParser:
          :return: list of Proxies
          """
         url = 'https://free-proxy-list.net/'
-        response = requests.get(url).content
+
+        proxies = {
+            'https': "https://178.151.205.154:33221",
+            'http': 'http;//79.125.163.225:59704'
+        }
+        response = requests.get(url, proxies=proxies).content
         soup = BeautifulSoup(response, "html.parser")
 
         proxyListTable = soup.find('table', attrs={'id': 'proxylisttable'})
