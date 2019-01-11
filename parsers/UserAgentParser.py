@@ -13,8 +13,6 @@ from bs4 import BeautifulSoup
 import requests
 from multiprocessing.dummy import Pool
 
-from parsers.Singleton import Singleton
-
 
 DEFAULT_USER_AGENTS = [
     ['Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9'],
@@ -28,8 +26,6 @@ class UserAgentParser:
     Class that parses the website (https://developers.whatismybrowser.com) and
     gets actual user agents (random user agent or list of it).
     """
-
-    __metaclass__ = Singleton
 
     SOFTWARE = {
         'internetExplorer': 'https://developers.whatismybrowser.com/useragents/explore/software_name/internet-explorer/',
