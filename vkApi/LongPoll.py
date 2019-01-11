@@ -13,6 +13,8 @@ import requests
 from vkApi.api import apiRequest
 
 
+ADD_MESSAGE = 4
+
 class LongPoll:
     """
     Class represented longPoll connection with VK server
