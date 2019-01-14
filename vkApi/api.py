@@ -17,13 +17,13 @@ V = '5.80'
 
 
 def apiRequest(method, payload=None):
-    """Get request from vk server
-      
+    """
+    Get request from vk server
+
     :param get: method for vkApi
     :param payload: parameters for vkApi
-    
+
     :return: answer from vkApi
-    
     """
 
     if payload is None:
@@ -35,4 +35,3 @@ def apiRequest(method, payload=None):
     response = requests.get(BASE_URL + method, payload)
     data = json.loads(response.text)
     return data
-

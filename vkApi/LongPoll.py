@@ -15,12 +15,24 @@ from vkApi.api import apiRequest
 
 ADD_MESSAGE = 4
 
+
 class LongPoll:
     """
     Class represented longPoll connection with VK server
     """
+
     def __init__(self, group_id):
-        response = self._getSessionData(group_id)['response']
+        """"""
+        self.group_id = group_id
+        self._setUpLongPoll()
+
+    def _setUpLongPoll(self):
+        """
+        Function to set up all connection variables for longPoll server work
+
+        :return: None
+        """
+        response = self._getSessionData(self.group_id)
         self._createConnectionVariables(
             server=response['server'],
             key=response['key'],
@@ -29,7 +41,7 @@ class LongPoll:
 
     def _getSessionData(self, group_id, need_pts='0', lp_version='3'):
         """
-        getting data from API to work with LongPoll
+        Getting data from API to work with LongPoll
 
         :param group_id: id of vk group
         :param need_pts: 1 by default (to return pts field)
@@ -42,11 +54,12 @@ class LongPoll:
             'group_id': group_id,
             'lp_version': lp_version,
         }
-        return apiRequest('messages.getLongPollServer', payload)
+        return apiRequest('messages.getLongPollServer', payload)['response']
 
-    def _createConnectionVariables(self, server, key, ts, act='a_check', wait='25', mode='2', version='3'):
+    def _createConnectionVariables(self, server, key, ts, act='a_check',
+                                   wait='25', mode='2', version='3'):
         """
-        initialize variables for LongPoll class
+        Initialize variables for LongPoll class
 
         :param server: server address
         :param key: secret key of session
@@ -69,18 +82,16 @@ class LongPoll:
 
     def _updateTs(self, newTs):
         """
-        update longPollPayload with new TS
+        Update longPollPayload with new TS
 
         :param newTs: new Ts
         :return: None
         """
-        self.longPollPayload.update(
-            {'ts': newTs}
-        )
+        self.longPollPayload.update({'ts': newTs})
 
     def getEvents(self):
         """
-        expression generator. Get events from VK longPoll server
+        Expression generator. Get events from VK longPoll server
 
         :return: events from VK longPoll
         :rtype: list
@@ -88,6 +99,10 @@ class LongPoll:
         while True:
             response = requests.get(self.longPollBaseUrl, self.longPollPayload)
             jsonResponse = json.loads(response.text)
+
+            if 'ts' not in jsonResponse:
+                self._setUpLongPoll()
+                continue
+
             self._updateTs(jsonResponse['ts'])
             yield jsonResponse['updates']
-
