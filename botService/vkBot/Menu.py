@@ -6,144 +6,417 @@ Created on 25.08.2018
 :author: Polianok Bogdan
 """
 
-
+import logging
 import datetime
-import itertools
+
+import requests
 
 from botService.vkBot.constants import ButtonsEnum, cities
-from core.RequestData import RequestData
-from core.filters import filter_onlyCheapest
+from vkApi.api import apiRequest
+
+logger = logging.getLogger(__name__)
 
 
 class Menu:
+    """
+    Class represented menu for vkApi bot
+    """
     def __init__(self):
         self.keyboard = None
 
     def getKeyboard(self):
+        """
+        Get keyboard dict specific for menu object
+
+        :return: keyboard dict for vkApi
+        :rtype: dict
+        """
         return self.keyboard
 
     def getInstruction(self, session):
-        return 'DEAFULT INSTRUCTION'
+        """
+        Get instruction specific for menu object
 
-    def getValidActions(self):
-        return [button['action']['label']
-                for rowWithButtons in self.keyboard['buttons']
-                for button in rowWithButtons
-                ]
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: None
+        """
+        raise NotImplemented
 
 
 class MainMenu(Menu):
+    """
+    Menu for MainMenu state
+    """
     def __init__(self):
         super().__init__()
         self.keyboard = {
             "one_time": False,
             "buttons": [
-                [ButtonsEnum.source, ButtonsEnum.target],
-                [ButtonsEnum.search]
+                [ButtonsEnum.CHANGE_TEMPLATE],
+                [ButtonsEnum.SEARCH_START, ButtonsEnum.SEARCH_STOP]
             ]
         }
 
+    def _startSearch(self, session):
+        """
+        Start search event
+
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: None
+        """
+        if not session.date or not session.price or not session.sourceCity or not session.targetCity:
+            logger.warning('Not enough data for searching')
+            payload = {
+                'user_id': session.userId,
+                'message': 'Введены не все данные, заполните шаблон и попробуйте снова.\n\n',
+            }
+            apiRequest('messages.send', payload)
+        else:
+            data = {
+                'sourceCity': session.sourceCity,
+                'targetCity': session.targetCity,
+                'price': session.price,
+                'date': session.date,
+                'userId': session.userId
+            }
+            logger.info('Send POST request to searchingService/start-search')
+            requests.post('http://localhost:100/start-search', json=data)
+
+    def _notifyUserAboutCurrentSearch(self, session):
+        """
+        Notify user, if he is searching tickets now
+
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: None
+        """
+        try:
+            logger.info('Send POST request to searchingService/is-searching')
+            response = requests.post('http://localhost:100/is-searching', json={'userId': session.userId})
+
+            if response.json()['isSearching']:
+                searchingInfo = 'В данный момент происходит поиск билета из {sourceCity} в {targetCity}, дата - {date}'.format(
+                    sourceCity=response.json()['searchingQuery']['sourceCity'],
+                    targetCity=response.json()['searchingQuery']['targetCity'],
+                    date=response.json()['searchingQuery']['date']
+                )
+                payload = {
+                    'user_id': session.userId,
+                    'message': searchingInfo,
+                }
+                apiRequest('messages.send', payload)
+
+        except requests.exceptions.RequestException as e:
+            logger.error(e)
+
     def execute(self, action, session):
-        if action == ButtonsEnum.source['action']['label']:
-            session.changeMenu(SourceCityMenu())
-        elif action == ButtonsEnum.target['action']['label']:
-            session.changeMenu(TargetCityMenu())
-        elif action == ButtonsEnum.search['action']['label']:
-            if session.sourceCity and session.targetCity:
-                session.changeMenu(SearchingMenu())
+        """
+        Execute actions specific for menu object, depending on user action
+
+        :param action: user action
+        :type action: str
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: None
+        """
+        self._notifyUserAboutCurrentSearch(session)
+        
+        if action == ButtonsEnum.CHANGE_TEMPLATE['action']['label']:
+            logger.info('Execute <CHANGE_TEMPLATE> action')
+            session.changeMenu(SourceCitySelection())
+
+        elif action == ButtonsEnum.SEARCH_START['action']['label']:
+            logger.info('Execute <SEARCH_START> action')
+            self._startSearch(session)
+
+        elif action == ButtonsEnum.SEARCH_STOP['action']['label']:
+            logger.info('Execute <SEARCH_STOP> action')
+            requests.post('http://localhost:100/stop-search', json={'userId': session.userId})
+
+        logger.info('Action is unrecognize, return current instruction')
 
     def getInstruction(self, session):
-        if not session.sourceCity and not session.targetCity:
-            return 'Выберете город вылета и город прилета'
-        elif not session.sourceCity:
-            return 'Город прилета - {target}, выберете город вылета'.format(
-                target=session.targetCity
-            )
-        elif not session.targetCity:
-            return 'Город вылета - {source}, выберете город прилета'.format(
-                source=session.sourceCity
-            )
-        else:
-            return 'Город вылета - {source}, город прибытия - {target};'.format(
-                source=session.sourceCity,
-                target=session.targetCity
-            )
+        """
+        Get instruction specific for menu object
+
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: instruction for user
+        :rtype: str
+        """
+        return 'Город отправления - {sourceCity},\n' \
+               'Город прибытия - {targetCity},\n' \
+               'Дата поездки - {date},\n' \
+               'Максимальная цена - {price}.\n'.format(
+                    sourceCity=session.sourceCity if session.sourceCity else 'НЕ ЗАДАНО',
+                    targetCity=session.targetCity if session.targetCity else 'НЕ ЗАДАНО',
+                    date = session.date if session.date else 'НЕ ЗАДАНО',
+                    price = session.price if session.price else 'НЕ ЗАДАНО'
+                )
 
 
-class SourceCityMenu(Menu):
+class SourceCitySelection(Menu):
+    """
+    Menu for source city selection
+    """
     def __init__(self):
         super().__init__()
         self.keyboard = {
             "one_time": False,
-            "buttons": [[ButtonsEnum.back]]
+            "buttons": [[ButtonsEnum.BACK, ButtonsEnum.NEXT]]
         }
 
     def execute(self, action, session):
-        if action == ButtonsEnum.back['action']['label']:
+        """
+        Execute actions specific for menu object, depending on user action
+
+        :param action: user action
+        :type action: str
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: None
+        """
+        if action == ButtonsEnum.BACK['action']['label']:
+            logger.info('Execute <BACK> action')
             session.changeMenu(MainMenu())
-        elif action in cities.keys():
+
+        elif action == ButtonsEnum.NEXT['action']['label']:
+            logger.info('Execute <NEXT> action')
+            session.changeMenu(TargetCitySelection())
+
+        elif action in cities:
+            logger.info('Execute <SETUP_SOURCE_CITY> action')
             session.sourceCity = action
-
-    def getValidActions(self):
-        return list(itertools.chain(
-            super().getValidActions(),
-            cities.keys(),
-        ))
+            session.changeMenu(TargetCitySelection())
+        else:
+            logger.info('Execute <INCORRECT_SOURCE_CITY> action')
+            payload = {
+                'user_id': session.userId,
+                'message': 'Некорректное имя города.'
+            }
+            apiRequest('messages.send', payload)
 
     def getInstruction(self, session):
-        sourceCities = ',\n'.join(cities.keys())
-        if session.sourceCity is not None:
-            return 'Выбранный Вами город отправления - {sourceCity}.\n\n\n ' \
-                   'Для изменения города отправьте сообщение с его названием:\n {cities}.'\
-                .format(sourceCity=session.sourceCity, cities=sourceCities)
-        else:
-            return 'Отправьте сообщение с нужным городом:\n {cities}.'.format(
-                cities=sourceCities
-            )
+        """
+        Get instruction specific for menu object
+
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: instruction for user
+        :rtype: str
+        """
+        return 'Выбранный Вами город ОТПРАВЛЕНИЯ - {sourceCity}.\n\n\n'\
+               'Для изменения города отправьте сообщение с его названием:\n{cities}.'.format(
+                    sourceCity=session.sourceCity if session.sourceCity else 'НЕ ЗАДАНО',
+                    cities=',\n'.join(cities)
+               )
 
 
-class TargetCityMenu(Menu):
+class TargetCitySelection(Menu):
+    """
+    Menu for target city selection
+    """
     def __init__(self):
         super().__init__()
         self.keyboard = {
             "one_time": False,
-            "buttons": [[ButtonsEnum.back]]
+            "buttons": [[ButtonsEnum.BACK, ButtonsEnum.NEXT]]
         }
 
     def execute(self, action, session):
-        if action == ButtonsEnum.back['action']['label']:
-            session.changeMenu(MainMenu())
-        elif action in cities.keys():
+        """
+        Execute actions specific for menu object, depending on user action
+
+        :param action: user action
+        :type action: str
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: None
+        """
+        if action == ButtonsEnum.BACK['action']['label']:
+            logger.info('Execute <BACK> action')
+            session.changeMenu(SourceCitySelection())
+
+        elif action == ButtonsEnum.NEXT['action']['label']:
+            logger.info('Execute <NEXT> action')
+            session.changeMenu(DateSelection())
+
+        elif action in cities:
+            logger.info('Execute <SETUP_TARGET_CITY> action')
             session.targetCity = action
-
-    def getValidActions(self):
-        return list(itertools.chain(
-            super().getValidActions(),
-            cities.keys(),
-        ))
+            session.changeMenu(DateSelection())
+        else:
+            logger.info('Execute <INCORRECT_TARGET_CITY> action')
+            payload = {
+                'user_id': session.userId,
+                'message': 'Некорректное имя города.'
+            }
+            apiRequest('messages.send', payload)
 
     def getInstruction(self, session):
-        targetCities = ',\n'.join(cities.keys())
-        if session.targetCity is not None:
-            return 'Выбранный Вами город прибытия - {targetCity}.\n\n\n ' \
-                   'Для изменения города отправьте сообщение с его названием:\n {cities}.'\
-                .format(targetCity=session.targetCity, cities=targetCities)
-        else:
-            return 'Отправьте сообщение с нужным городом:\n {cities}.'.format(
-                cities=targetCities
-            )
+        """
+        Get instruction specific for menu object
 
-class SearchingMenu(Menu):
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: instruction for user
+        :rtype: str
+        """
+        return 'Выбранный Вами город ПРИБЫТИЯ - {targetCity}.\n\n\n'\
+               'Для изменения города отправьте сообщение с его названием:\n{cities}.'.format(
+                    targetCity=session.targetCity if session.targetCity else 'НЕ ЗАДАНО',
+                    cities=',\n'.join(cities)
+               )
+
+
+class DateSelection(Menu):
+    """
+    Menu for date selection
+    """
     def __init__(self):
         super().__init__()
         self.keyboard = {
             "one_time": False,
-            "buttons": [
-                [ButtonsEnum.searchStart, ButtonsEnum.searchStop],
-                [ButtonsEnum.back]
-            ]
+            "buttons": [[ButtonsEnum.BACK, ButtonsEnum.NEXT]]
         }
-        self.filters = [filter_onlyCheapest]
 
     def execute(self, action, session):
-        pass
+        """
+        Execute actions specific for menu object, depending on user action
+
+        :param action: user input action
+        :type action: str
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: None
+        """
+        if action == ButtonsEnum.BACK['action']['label']:
+            logger.info('Execute <BACK> action')
+            session.changeMenu(TargetCitySelection())
+
+        elif action == ButtonsEnum.NEXT['action']['label']:
+            logger.info('Execute <NEXT> action')
+            session.changeMenu(PriceSelection())
+
+        elif self._dateIsValid(action):
+            logger.info('Execute <SETUP_DATE> action')
+            session.date = action
+            session.changeMenu(PriceSelection())
+
+        else:
+            logger.info('Execute <INCORRECT_DATE> action')
+            payload = {
+                'user_id': session.userId,
+                'message': 'Некорректный формат даты.',
+            }
+            apiRequest('messages.send', payload)
+
+    def _dateIsValid(self, date):
+        """
+        Validate date from user input
+
+        :param date: user date from input
+        :type date: str
+        :return: date validation status
+        :rtype: bool
+        """
+        logger.info('Validating "{0}" date'.format(date))
+        try:
+            year, month, day = map(int, date.split('-'))
+            datetime.date(year, month, day)
+            return True
+        except ValueError as e:
+            logger.warning(e)
+            return False
+
+    def getInstruction(self, session):
+        """
+        Get instruction specific for menu object
+
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: instruction for user
+        :rtype: str
+        """
+        return 'Выбранная Вами дата - {date}.\n\n\n' \
+               'Для изменения ДАТЫ отправьте сообщение с датой в формате ГГГГ-ММ-ДД.'\
+               .format(date=session.date if session.date else 'НЕ ЗАДАНО',)
+
+
+class PriceSelection(Menu):
+    """
+    Menu for price selection
+    """
+    def __init__(self):
+        super().__init__()
+        self.keyboard = {
+            "one_time": False,
+            "buttons": [[ButtonsEnum.BACK, ButtonsEnum.FINISH]]
+        }
+
+    def execute(self, action, session):
+        """
+        Execute actions specific for menu object, depending on user action
+
+        :param action: user input action
+        :type action: str
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: None
+        """
+        if action == ButtonsEnum.BACK['action']['label']:
+            logger.info('Execute <BACK> action')
+            session.changeMenu(DateSelection())
+
+        elif action == ButtonsEnum.FINISH['action']['label']:
+            logger.info('Execute <NEXT> action')
+            session.changeMenu(MainMenu())
+
+        elif self._priceIsValid(action):
+            logger.info('Execute <SETUP_PRICE> action')
+            session.price = action
+            session.changeMenu(MainMenu())
+
+        else:
+            logger.info('Execute <INCORRECT_PRICE> action')
+            payload = {
+                'user_id': session.userId,
+                'message': 'Некорректный формат числа.\n\n'
+            }
+            apiRequest('messages.send', payload)
+
+    def _priceIsValid(self, price):
+        """
+        Validate price from user input
+
+        :param price: user date from input
+        :type price: str
+        :return: price validation status
+        :rtype: bool
+        """
+        logger.info('Validating "{0}" price'.format(price))
+        try:
+            price = int(price)
+            if price > 0:
+                return True
+            else:
+                raise ValueError
+        except ValueError as e:
+            logger.warning(e)
+            return False
+
+    def getInstruction(self, session):
+        """
+        Get instruction specific for menu object
+
+        :param session: UserSession object with data
+        :type session: UserSession
+        :return: instruction for user
+        :rtype: str
+        """
+        return 'Выбранная Вами максимальная ЦЕНА билета - {price}.\n\n\n' \
+               'Для изменения максимальной стоимости билета отправьте сообщение с числом:'\
+               .format(price=session.price if session.price else 'НЕ ЗАДАНО')
+
