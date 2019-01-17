@@ -48,7 +48,7 @@ def receiveMessage():
         userSession = UserSession(data['userId']) if str(data['userId']) not in session \
             else json.loads(session[str(data['userId'])], object_hook=asSession)
 
-        logger.info('Execute "{0}" action'.format(data['message']))
+        logger.info('Get "{0}" action'.format(data['message']))
         userSession.execute(data['message'])
         session[str(data['userId'])] = str(json.dumps(userSession, cls=SessionEncoder))
 
