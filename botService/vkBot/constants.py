@@ -6,11 +6,13 @@ Created on 25.08.2018
 :author: Polianok Bogdan
 """
 
+
 class ButtonsEnum:
     """
     Enum with different button types
     """
-    back = {
+
+    BACK = {
         'action': {
             'type': 'text',
             'label': 'Назад',
@@ -18,31 +20,7 @@ class ButtonsEnum:
         'color': 'negative'
     }
 
-    source = {
-        'action': {
-            'type': 'text',
-            'label': 'Откуда',
-        },
-        'color': 'primary'
-    }
-
-    target = {
-        'action': {
-            'type': 'text',
-            'label': 'Куда',
-        },
-        'color': 'primary'
-    }
-
-    search = {
-        'action': {
-            'type': 'text',
-            'label': 'Поиск билета',
-        },
-        'color': 'positive'
-    }
-
-    searchStart = {
+    SEARCH_START = {
         'action': {
             'type': 'text',
             'label': 'Начать поиск',
@@ -50,22 +28,38 @@ class ButtonsEnum:
         'color': 'positive'
     }
 
-    searchStop = {
+    SEARCH_STOP = {
         'action': {
             'type': 'text',
             'label': 'Остановить поиск',
+        },
+        'color': 'negative'
+    }
+
+    CHANGE_TEMPLATE = {
+        'action': {
+            'type': 'text',
+            'label': 'Изменить шаблон поиска'
+        },
+        'color': 'primary'
+    }
+
+    NEXT = {
+        'action': {
+            'type': 'text',
+            'label': 'Далее'
+        },
+        'color': 'primary'
+    }
+
+    FINISH = {
+        'action': {
+            'type': 'text',
+            'label': 'Завершить'
         },
         'color': 'primary'
     }
 
 
-cities = {
-    'Владивосток': 'VVO',
-    'Москва': 'MOSC',
-    'Санкт-Петербург': 'LED',
-    'Сочи': 'AAQ',
-    'Екатеринбург': 'SVX',
-    'Париж': 'PARI',
-    'Ярославль': 'IAR',
-}
-
+cities = ['Владивосток', 'Москва', 'Санкт-Петербург', 'Сочи', 'Екатеринбург',
+          'Париж', 'Ярославль']
