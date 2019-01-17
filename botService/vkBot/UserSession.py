@@ -6,17 +6,24 @@ Created on 22.09.2018
 :author: Polianok Bogdan
 """
 
+import logging
 from json import JSONEncoder
 
 import botService.vkBot.Menu as Menu
+
+logger = logging.getLogger(__name__)
+
 
 class UserSession:
     """
     class represented one session with single unique user (one session for each user)
     """
-    def __init__(self):
+    def __init__(self, userId):
         self._sourceCity = None
         self._targetCity = None
+        self.date = None
+        self.price = None
+        self.userId = userId
         self.menu = Menu.MainMenu()
 
     @property
@@ -77,6 +84,7 @@ class UserSession:
         :param menu: new menu state
         :return: None
         """
+        logger.info('Change menu from {0} to {1}'.format(type(self.menu), type(menu)))
         self.menu = menu
 
     def getValidActions(self):
@@ -108,9 +116,13 @@ class SessionEncoder(JSONEncoder):
         :return: session dict
         :rtype: dict
         """
+        if isinstance(o, UserSession):
+            logger.info('Encode user session object into dict')
+
         obj = o.__dict__
         obj.update({'class': type(o).__name__})
         return obj
+
 
 def asSession(dict):
     """ Function to create UserSession object from dict
@@ -121,9 +133,12 @@ def asSession(dict):
     :rtype: UserSession
     """
     if 'class' in dict and dict['class'] == 'UserSession':
-        userSession = UserSession()
+        logger.info('Decode user session string into object')
+        userSession = UserSession(dict['userId'])
         userSession.sourceCity = dict['_sourceCity']
         userSession.targetCity = dict['_targetCity']
+        userSession.price = dict['price']
+        userSession.date = dict['date']
 
         menuClass = getattr(Menu, dict['menu']['class'])
         menu = menuClass()
@@ -131,3 +146,4 @@ def asSession(dict):
         return userSession
     else:
         return dict
+    
