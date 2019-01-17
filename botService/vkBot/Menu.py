@@ -96,7 +96,7 @@ class MainMenu(Menu):
             logger.info('Send POST request to searchingService/is-searching')
             response = requests.post('http://localhost:100/is-searching', json={'userId': session.userId})
 
-            if response.json()['isSearching']:
+            if response.status_code == 200 and response.json()['isSearching']:
                 searchingInfo = 'В данный момент происходит поиск билета из {sourceCity} в {targetCity}, дата - {date}'.format(
                     sourceCity=response.json()['searchingQuery']['sourceCity'],
                     targetCity=response.json()['searchingQuery']['targetCity'],
@@ -121,8 +121,6 @@ class MainMenu(Menu):
         :type session: UserSession
         :return: None
         """
-        self._notifyUserAboutCurrentSearch(session)
-        
         if action == ButtonsEnum.CHANGE_TEMPLATE['action']['label']:
             logger.info('Execute <CHANGE_TEMPLATE> action')
             session.changeMenu(SourceCitySelection())
@@ -135,6 +133,7 @@ class MainMenu(Menu):
             logger.info('Execute <SEARCH_STOP> action')
             requests.post('http://localhost:100/stop-search', json={'userId': session.userId})
 
+        self._notifyUserAboutCurrentSearch(session)
         logger.info('Action is unrecognize, return current instruction')
 
     def getInstruction(self, session):
