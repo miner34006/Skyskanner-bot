@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 
 """
-
 :author: Polianok Bogdan
-
 """
 
+import logging
 import requests
 import json
 
+
 BASE_URL = "https://api.vk.com/method/"
-
 GROUP_TOKEN = 'e30b7d7b16eb6ad8420986e7fd086bedd630e91b3612e0895ff18a2cd6934fc77a3552eec87d747e1adbb'
-
 V = '5.80'
+
+logger = logging.getLogger(__name__)
 
 
 def apiRequest(method, payload=None):
@@ -32,6 +32,7 @@ def apiRequest(method, payload=None):
     if not ('access_token' in payload):
         payload.update({'access_token': GROUP_TOKEN, 'v': V})
 
+    logger.info('Make request to vkApi method {0}'.format(method))
     response = requests.get(BASE_URL + method, payload)
     data = json.loads(response.text)
     return data

@@ -7,12 +7,13 @@ Created on 12.01.2018
 """
 
 import json
+import logging
 
 import requests
 
 from vkApi.api import apiRequest
 
-
+logger = logging.getLogger(__name__)
 ADD_MESSAGE = 4
 
 
@@ -32,12 +33,14 @@ class LongPoll:
 
         :return: None
         """
+        logger.info('Establishing connection with a longPoll server')
         response = self._getSessionData(self.group_id)
         self._createConnectionVariables(
             server=response['server'],
             key=response['key'],
             ts=response['ts']
         )
+        logger.info('Connection established')
 
     def _getSessionData(self, group_id, need_pts='0', lp_version='3'):
         """
@@ -99,6 +102,7 @@ class LongPoll:
         while True:
             response = requests.get(self.longPollBaseUrl, self.longPollPayload)
             jsonResponse = json.loads(response.text)
+            logger.debug('Get response from longPoll - {0}'.format(jsonResponse))
 
             if 'ts' not in jsonResponse:
                 self._setUpLongPoll()

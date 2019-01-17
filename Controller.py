@@ -7,8 +7,11 @@ Created on 11.01.2019
 """
 
 import requests
+import logging
 
 from vkApi.LongPoll import LongPoll, ADD_MESSAGE
+
+logger = logging.getLogger(__name__)
 
 
 class Controller:
@@ -20,7 +23,8 @@ class Controller:
         self.cookies = {}
 
     def _getEvents(self):
-        """ Function to get events from longPoll
+        """
+        Function to get events from longPoll
 
         :return: list with vk events
         :rtype: list
@@ -28,7 +32,8 @@ class Controller:
         return next(self.longPoll.getEvents())
 
     def _getCookie(self, userId):
-        """ Get user-related cookie
+        """
+        Get user-related cookie
 
         :param userId: vk user Id
         :type userId: str
@@ -41,7 +46,8 @@ class Controller:
         return self.cookies[userId]
 
     def _setCookie(self, userId, cookie):
-        """ Set user-related cookie
+        """
+        Set user-related cookie
 
         :param userId: vk user Id
         :type userId: str
@@ -53,10 +59,13 @@ class Controller:
             self.cookies[userId] = cookie
 
     def start(self):
-        """ Function handles events from longPoll server and send requests to bot service
+        """
+        Function handles events from longPoll server and send requests to bot
+        service
 
         :return: None
         """
+        logger.info('Strating controller')
         while True:
             for event in self._getEvents():
                 if event[0] == ADD_MESSAGE:
@@ -65,14 +74,22 @@ class Controller:
                         userId = event[3]
                         message = event[5]
 
+                        logger.info('Revieve "{0}" message from user, notify botService'.format(message))
                         response = requests.post(
                             'http://localhost:5000/receive',
-                            json={'userId':userId, 'message':message},
+                            json={'userId': userId, 'message': message},
                             cookies=self._getCookie(userId)
                         )
                         self._setCookie(userId, response.cookies)
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        filename='./logs/controller.log',
+        format='[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        level=logging.INFO
+    )
+
     controller = Controller()
     controller.start()
