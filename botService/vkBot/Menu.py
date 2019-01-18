@@ -81,7 +81,6 @@ class MainMenu(Menu):
                 'date': session.date,
                 'userId': session.userId
             }
-            logger.info('Send POST request to searchingService/start-search')
             requests.post('http://localhost:100/start-search', json=data)
 
     def _notifyUserAboutCurrentSearch(self, session):
@@ -93,9 +92,8 @@ class MainMenu(Menu):
         :return: None
         """
         try:
-            logger.info('Send POST request to searchingService/is-searching')
+            logger.info('Getting information about current search')
             response = requests.post('http://localhost:100/is-searching', json={'userId': session.userId})
-
             if response.status_code == 200 and response.json()['isSearching']:
                 searchingInfo = 'В данный момент происходит поиск билета из {sourceCity} в {targetCity}, дата - {date}'.format(
                     sourceCity=response.json()['searchingQuery']['sourceCity'],
@@ -106,6 +104,7 @@ class MainMenu(Menu):
                     'user_id': session.userId,
                     'message': searchingInfo,
                 }
+                logger.info('Sending data about current search')
                 apiRequest('messages.send', payload)
 
         except requests.exceptions.RequestException as e:
@@ -132,9 +131,11 @@ class MainMenu(Menu):
         elif action == ButtonsEnum.SEARCH_STOP['action']['label']:
             logger.info('Execute <SEARCH_STOP> action')
             requests.post('http://localhost:100/stop-search', json={'userId': session.userId})
+        else:
+            logger.info('Execute <INCORRECT_MAIN_MENU> action')
 
         self._notifyUserAboutCurrentSearch(session)
-        logger.info('Action is unrecognize, return current instruction')
+
 
     def getInstruction(self, session):
         """

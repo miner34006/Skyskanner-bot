@@ -13,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 @app.route('/send', methods=['POST'])
 def sendMessage():
-    """ api endpoint to send message from bot to user
+    """
+    Api endpoint to send message from bot to user
 
     :return: api response with status code
     :rtype: Response
     """
-    logger.info('POST request to /send endpoint')
     data = request.get_json()
     try:
         payload = {
@@ -37,18 +37,18 @@ def sendMessage():
 
 @app.route('/receive', methods=['POST'])
 def receiveMessage():
-    """ Api endpoint to handle new message from user.
+    """
+    Api endpoint to handle new message from user.
 
     :return: api response with status code
     :rtype: Response
     """
-    logger.info('POST request to /receive endpoint')
     try:
         data = request.get_json()
         userSession = UserSession(data['userId']) if str(data['userId']) not in session \
             else json.loads(session[str(data['userId'])], object_hook=asSession)
 
-        logger.info('Get "{0}" action'.format(data['message']))
+        logger.info('Got "{0}" action'.format(data['message']))
         userSession.execute(data['message'])
         session[str(data['userId'])] = str(json.dumps(userSession, cls=SessionEncoder))
 
@@ -57,6 +57,7 @@ def receiveMessage():
             'message': userSession.getInstruction(),
             'keyboard': json.dumps(userSession.getKeyboard(), ensure_ascii=False).encode("utf-8")
         }
+        logger.info('Sending instructions to user')
         apiRequest('messages.send', payload)
         return Response(status=200)
     except requests.RequestException as e:

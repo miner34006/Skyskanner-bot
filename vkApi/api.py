@@ -32,7 +32,6 @@ def apiRequest(method, payload=None):
     if not ('access_token' in payload):
         payload.update({'access_token': GROUP_TOKEN, 'v': V})
 
-    logger.info('Make request to vkApi method {0}'.format(method))
-    response = requests.get(BASE_URL + method, payload)
+    response = requests.post(BASE_URL + method, payload)
     data = json.loads(response.text)
     return data

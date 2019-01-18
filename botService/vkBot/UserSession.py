@@ -117,7 +117,7 @@ class SessionEncoder(JSONEncoder):
         :rtype: dict
         """
         if isinstance(o, UserSession):
-            logger.info('Encode user session object into dict')
+            logger.info('Encoding UserSession object')
 
         obj = o.__dict__
         obj.update({'class': type(o).__name__})
@@ -133,7 +133,7 @@ def asSession(dict):
     :rtype: UserSession
     """
     if 'class' in dict and dict['class'] == 'UserSession':
-        logger.info('Decode user session string into object')
+        logger.info('Decoding into UserSession object')
         userSession = UserSession(dict['userId'])
         userSession.sourceCity = dict['_sourceCity']
         userSession.targetCity = dict['_targetCity']
@@ -146,4 +146,3 @@ def asSession(dict):
         return userSession
     else:
         return dict
-    
