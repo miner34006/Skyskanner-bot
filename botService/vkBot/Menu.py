@@ -81,7 +81,7 @@ class MainMenu(Menu):
                 'date': session.date,
                 'userId': session.userId
             }
-            requests.post('http://localhost:100/start-search', json=data)
+            requests.post('http://localhost:100/search', json=data)
 
     def _notifyUserAboutCurrentSearch(self, session):
         """
@@ -93,12 +93,12 @@ class MainMenu(Menu):
         """
         try:
             logger.info('Getting information about current search')
-            response = requests.post('http://localhost:100/is-searching', json={'userId': session.userId})
-            if response.status_code == 200 and response.json()['isSearching']:
+            response = requests.get('http://localhost:100/search/{0}'.format(session.userId))
+            if response.status_code == 200:
                 searchingInfo = 'В данный момент происходит поиск билета из {sourceCity} в {targetCity}, дата - {date}'.format(
-                    sourceCity=response.json()['searchingQuery']['sourceCity'],
-                    targetCity=response.json()['searchingQuery']['targetCity'],
-                    date=response.json()['searchingQuery']['date']
+                    sourceCity=response.json()['sourceCity'],
+                    targetCity=response.json()['targetCity'],
+                    date=response.json()['date']
                 )
                 payload = {
                     'user_id': session.userId,
@@ -130,7 +130,7 @@ class MainMenu(Menu):
 
         elif action == ButtonsEnum.SEARCH_STOP['action']['label']:
             logger.info('Execute <SEARCH_STOP> action')
-            requests.post('http://localhost:100/stop-search', json={'userId': session.userId})
+            requests.delete('http://localhost:100/search/{0}'.format(session.userId))
         else:
             logger.info('Execute <INCORRECT_MAIN_MENU> action')
 
