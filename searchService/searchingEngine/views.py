@@ -65,51 +65,67 @@ class Searcher(threading.Thread):
         self.stopThread = True
 
 
-def stopExistingTask(userId):
-    global searchingTasks
-    if userId in searchingTasks and searchingTasks[userId]:
-        searchingTasks[userId].stop()
-        searchingTasks[userId] = None
+def deleteSearch(searchId):
+    def deleteEntity(entityId):
+        global searchingTasks
+        searchingTasks[int(entityId)].stop()
+        searchingTasks.pop(int(entityId))
 
-def startSearchingTask(data):
-    stopExistingTask(int(data['userId']))
+    if searchId:
+        deleteEntity(searchId)
+    else:
+        for searchId in searchingTasks:
+            deleteEntity(searchId)
+
+def postSearch(data):
+    try:
+        deleteSearch(data['userId'])
+    except:
+        pass
+
     global searchingTasks
     searchingTasks[int(data['userId'])] = Searcher(data['sourceCity'], data['targetCity'], data['price'], data['date'], int(data['userId']))
     searchingTasks[int(data['userId'])].start()
 
-@app.route('/start-search', methods=['POST'])
-def startSearch():
-    data = request.get_json()
-    try:
-        startSearchingTask(data)
-        return Response(status=200)
-    except KeyError as _:
-        return Response(status=400)
-
-
-@app.route('/stop-search', methods=['POST'])
-def stopSearch():
-    data = request.get_json()
-    try:
-        stopExistingTask(int(data['userId']))
-        return Response(status=200)
-    except KeyError as _:
-        return Response(status=400)
-
-
-@app.route('/is-searching', methods=['POST'])
-def isSearching():
-    data = request.get_json()
-    try:
-        global searchingTasks
+def getSearch(searchId):
+    if searchId:
         returnData = {
-            'isSearching': True if searchingTasks[int(data['userId'])] else False,
-            'searchingQuery': {
-                'sourceCity': searchingTasks[int(data['userId'])].sourceCity,
-                'targetCity': searchingTasks[int(data['userId'])].targetCity,
-                'date': searchingTasks[int(data['userId'])].date
-            } if searchingTasks[int(data['userId'])] else None
+            'sourceCity': searchingTasks[searchId].sourceCity,
+            'targetCity': searchingTasks[searchId].targetCity,
+            'date': searchingTasks[searchId].date
         }
-        return Response(json.dumps(returnData), status=200, mimetype='application/json')
-    except KeyError as _:
-        return Response(status=400)
+    else:
+        returnData = []
+        for searchId in searchingTasks:
+            returnData.append({
+                'searchId': searchId,
+                'sourceCity': searchingTasks[searchId].sourceCity,
+                'targetCity': searchingTasks[searchId].targetCity,
+                'date': searchingTasks[searchId].date
+            })
+    return returnData
+
+
+@app.route('/search', defaults={'searchId': None}, methods=['GET', 'POST', 'DELETE'])
+@app.route('/search/<int:searchId>', methods=['GET', 'DELETE'])
+def search(searchId):
+    if request.method == 'GET':
+        try:
+            return Response(json.dumps(getSearch(searchId)), status=200, mimetype='application/json')
+        except KeyError:
+            return Response(status=404)
+
+    elif request.method == 'POST':
+        try:
+            postSearch(request.get_json())
+        except KeyError:
+            return Response(status=500)
+        return Response(status=201)
+
+    elif request.method == 'DELETE':
+        try:
+            deleteSearch(searchId)
+            return Response(status=204)
+        except KeyError:
+            return Response(status=404)
+
