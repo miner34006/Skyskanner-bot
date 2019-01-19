@@ -63,12 +63,6 @@ class UserAgentParserTestCase(unittest.TestCase):
         self.assertTrue(parser._hasUserAgents)
         self.assertNotEqual([], parser._userAgents)
 
-    def test_parseUserAgents(self):
-        parser = UserAgentParser()
-        someList = parser._parseUserAgents(parser.SOFTWARE['firefox'])
-        self.assertIsInstance(someList, list)
-        self.assertNotEqual([], someList)
-
     def test_parseUserAgentsRaisesExeption(self):
         parser = UserAgentParser()
         with self.assertRaises(ValueError):
