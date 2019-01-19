@@ -13,7 +13,7 @@ import unittest
 skyenv = os.environ.get('SKYENV', '/home/skyenv/')
 sys.path.append(skyenv)
 
-from searchService.parsers import UserAgentParser
+from searchService.parsers.UserAgentParser import UserAgentParser
 
 
 class UserAgentParserTestCase(unittest.TestCase):
