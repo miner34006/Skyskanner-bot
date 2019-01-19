@@ -15,10 +15,10 @@ from multiprocessing.dummy import Pool
 
 
 DEFAULT_USER_AGENTS = [
-    ['Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9'],
-    ['Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36'],
-    ['Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1'],
-    ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246'],
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9',
+    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36',
+    'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246',
 ]
 
 class UserAgentParser:
@@ -41,7 +41,7 @@ class UserAgentParser:
 
     def getRandomUserAgent(self):
         """
-        Select random user agent from self.__userAgents
+        Select random user agent from self._userAgents
 
         :return: random user agent
         """
@@ -51,7 +51,7 @@ class UserAgentParser:
 
     def getUserAgents(self):
         """
-        Getting self.__userAgents
+        Getting self._userAgents
 
         :return: user agents list
         """
@@ -61,7 +61,7 @@ class UserAgentParser:
 
     def updateUserAgents(self):
         """
-        Updates self.__userAgents
+        Updates self._userAgents
 
         :return: None
         """
@@ -70,28 +70,26 @@ class UserAgentParser:
 
     def _createUserAgents(self):
         """
-        Creates self.__userAgents and changes __hasUserAgents flag
+        Creates self._userAgents and changes _hasUserAgents flag
 
         :return: None
         """
         pool = Pool(5)
-
-        try:
-            results = pool.map(self._parseUserAgents, self.SOFTWARE.values())
-        except requests.exceptions.RequestException as e:
-            print('Cant get user agents from developers.whatismybrowser.com. Using default one. Reason:\n{0}'.format(e))
-            results = DEFAULT_USER_AGENTS
-        finally:
-            pool.close()
-            pool.join()
+        results = pool.map(self._parseUserAgents, self.SOFTWARE.values())
+        pool.close()
+        pool.join()
 
         for element in results:
             self._appendToUserAgents(element)
+
+        if not self._userAgents:
+            self._userAgents = DEFAULT_USER_AGENTS
+
         self._hasUserAgents = True
 
     def _clearUserAgents(self):
         """
-        Clears self.__userAgents and changes __hasUserAgents flag
+        Clears self._userAgents and changes _hasUserAgents flag
 
         :return: None
         """
@@ -108,14 +106,17 @@ class UserAgentParser:
         if software not in self.SOFTWARE.values():
             raise ValueError('Invalid function parameter')
 
-        response = requests.get(software)
-        soup = BeautifulSoup(response.content, "html.parser")
-        userAgents = soup.find_all('td', class_='useragent')
-        return [userAgent.string for userAgent in userAgents]
+        try:
+            response = requests.get(software)
+            soup = BeautifulSoup(response.content, "html.parser")
+            userAgents = soup.find_all('td', class_='useragent')
+            return [userAgent.string for userAgent in userAgents]
+        except requests.exceptions.RequestException:
+            return []
 
     def _appendToUserAgents(self, userAgents):
         """
-        Append elements of user agents list to self.__userAgents
+        Append elements of user agents list to self._userAgents
 
         :param userAgents: list of user agents needed to append
         :return: None
