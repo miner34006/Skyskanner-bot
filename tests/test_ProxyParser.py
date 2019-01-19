@@ -6,10 +6,14 @@ Created on 09.07.2018
 :author: Polianok Bogdan
 """
 
+import sys
+import os
 import unittest
 
-from parsers.ProxyParser import ProxyParser
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
 
+from parsers.ProxyParser import ProxyParser
 from searchService.parsers.Proxy import Proxy
 
 
@@ -71,14 +75,14 @@ class ProxyParserTestCase(unittest.TestCase):
         for _ in range(10):
             proxy = parser.getRandomHttpsProxy()
             self.assertIsInstance(proxy, Proxy)
-            self.assertEqual('yes', proxy.https)
+            self.assertEqual(True, proxy.https)
 
     def test_getRandomHttpProxy(self):
         parser = ProxyParser()
         for _ in range(10):
             proxy = parser.getRandomHttpProxy()
             self.assertIsInstance(proxy, Proxy)
-            self.assertEqual('no', proxy.https)
+            self.assertEqual(False, proxy.https)
 
 
 if __name__ == '__main__':

@@ -6,7 +6,12 @@ Created on 07.07.2018
 :author: Polianok Bogdan
 """
 
+import sys
+import os
 import unittest
+
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
 
 from searchService.parsers import UserAgentParser
 
