@@ -74,6 +74,10 @@ class MainMenu(Menu):
             }
             apiRequest('messages.send', payload)
         else:
+            response = requests.get('http://localhost:100/search/{0}'.format(session.userId))
+            if response.status_code == 200:
+                requests.delete('http://localhost:100/search/{0}'.format(session.userId))
+            
             data = {
                 'sourceCity': session.sourceCity,
                 'targetCity': session.targetCity,
