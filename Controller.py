@@ -3,7 +3,7 @@
 """
 Created on 11.01.2019
 
-:author: Polianok Bogdan
+:author: Polianok Bogdddsdan
 """
 
 import requests
@@ -75,11 +75,16 @@ class Controller:
                         message = event[5]
 
                         logger.info('Revieve "{0}" message from user, notify botService'.format(message))
-                        response = requests.post(
-                            'http://localhost:5000/receive',
-                            json={'userId': userId, 'message': message},
-                            cookies=self._getCookie(userId)
-                        )
+                        try:
+                            response = requests.post(
+                                'http://localhost:5000/receive',
+                                json={'userId': userId, 'message': message},
+                                cookies=self._getCookie(userId)
+                            )
+                        except requests.exceptions.RequestException:
+                            logger.critical('No connection with botService')
+                            continue
+
                         self._setCookie(userId, response.cookies)
 
 
