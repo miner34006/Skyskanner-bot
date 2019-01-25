@@ -6,10 +6,15 @@ Created on 22.09.2018
 :author: Polianok Bogdan
 """
 
+import sys
+import os
 import logging
 from json import JSONEncoder
 
-import botService.vkBot.Menu as Menu
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+import vkBot.source.Menu as Menu
 
 logger = logging.getLogger(__name__)
 

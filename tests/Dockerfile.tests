@@ -3,7 +3,7 @@ FROM python:3.7.2-alpine
 COPY ./requirements.txt /home/skyenv/
 RUN pip install --requirement /home/skyenv/requirements.txt
 
-ENV SKYENV=/home/skyenv/
+ENV SKYENV=/home/skyenv/services
 
 COPY . /home/skyenv/
 WORKDIR /home/skyenv/

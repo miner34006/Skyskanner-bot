@@ -6,12 +6,17 @@ Created on 12.01.2018
 :author: Polianok Bogdan
 """
 
+import sys
+import os
 import json
 import logging
 
 import requests
 
-from vkApi.api import apiRequest
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+from modules.api import apiRequest
 
 logger = logging.getLogger(__name__)
 ADD_MESSAGE = 4

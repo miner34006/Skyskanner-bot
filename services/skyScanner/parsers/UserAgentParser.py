@@ -8,6 +8,10 @@ Created on 07.07.2018
 
 import random
 import sys
+import os
+
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
 
 from bs4 import BeautifulSoup
 import requests

@@ -1,12 +1,17 @@
+import sys
+import os
 import json
 import logging
 
 import requests
 from flask import request, session, Response
 
-from botService.vkBot import app
-from botService.vkBot.UserSession import UserSession, SessionEncoder, asSession
-from vkApi.api import apiRequest
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+from vkBot.source import app
+from vkBot.source.UserSession import UserSession, SessionEncoder, asSession
+from modules.api import apiRequest
 
 logger = logging.getLogger(__name__)
 

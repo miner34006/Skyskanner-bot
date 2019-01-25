@@ -13,8 +13,8 @@ import unittest
 skyenv = os.environ.get('SKYENV', '/home/skyenv/')
 sys.path.append(skyenv)
 
-from searchService.parsers.ProxyParser import ProxyParser
-from searchService.parsers.Proxy import Proxy
+from skyScanner.parsers.ProxyParser import ProxyParser
+from skyScanner.parsers.Proxy import Proxy
 
 
 class ProxyParserTestCase(unittest.TestCase):

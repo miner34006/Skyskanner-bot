@@ -1,11 +1,16 @@
 import json
+import sys
+import os
 
 from flask import request, Response
 
-from searchService.searchingEngine import app
-from searchService.parsers.ProxyParser import ProxyParser
-from searchService.parsers.UserAgentParser import UserAgentParser
-from searchService.searchingEngine.Search import Search
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+from skyScanner.searchingEngine import app
+from skyScanner.parsers.ProxyParser import ProxyParser
+from skyScanner.parsers.UserAgentParser import UserAgentParser
+from skyScanner.searchingEngine.Search import Search
 
 userAgentParser = UserAgentParser()
 proxyParser = ProxyParser()

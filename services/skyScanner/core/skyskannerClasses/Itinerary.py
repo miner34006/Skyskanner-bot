@@ -6,7 +6,13 @@ Created on 30.07.2018
 :author: Polianok Bogdan
 """
 
-from searchService.core.skyskannerClasses.PricingOption import PricingOption
+import sys
+import os
+
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+from skyScanner.core.skyskannerClasses.PricingOption import PricingOption
 
 
 class Itinerary:

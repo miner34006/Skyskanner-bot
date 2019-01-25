@@ -6,10 +6,15 @@ Created on 30.07.2018
 :author: Polianok Bogdan
 """
 
+import sys
+import os
 from functools import total_ordering
 
-from searchService.core.skyskannerClasses.Item import Item
-from searchService.core.skyskannerClasses.Price import Price
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+from skyScanner.core.skyskannerClasses.Item import Item
+from skyScanner.core.skyskannerClasses.Price import Price
 
 
 @total_ordering

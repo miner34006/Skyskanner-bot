@@ -6,14 +6,19 @@ Created on 07.07.2018
 :author: Polianok Bogdan
 """
 
+import sys
+import os
 import random
 import logging
 from multiprocessing.dummy import Pool
 
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
 import requests
 from bs4 import BeautifulSoup
 
-from searchService.parsers.Proxy import Proxy
+from skyScanner.parsers.Proxy import Proxy
 
 
 class ProxyParser:

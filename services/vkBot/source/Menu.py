@@ -6,13 +6,18 @@ Created on 25.08.2018
 :author: Polianok Bogdan
 """
 
+import sys
+import os
 import logging
 import datetime
 
 import requests
 
-from botService.vkBot.constants import ButtonsEnum, cities
-from vkApi.api import apiRequest
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+from vkBot.source.constants import ButtonsEnum, cities
+from modules.api import apiRequest
 
 logger = logging.getLogger(__name__)
 
@@ -74,10 +79,10 @@ class MainMenu(Menu):
             }
             apiRequest('messages.send', payload)
         else:
-            response = requests.get('http://localhost:100/search/{0}'.format(session.userId))
+            response = requests.get('http://localhost:2000/search/{0}'.format(session.userId))
             if response.status_code == 200:
-                requests.delete('http://localhost:100/search/{0}'.format(session.userId))
-            
+                requests.delete('http://localhost:2000/search/{0}'.format(session.userId))
+
             data = {
                 'sourceCity': session.sourceCity,
                 'targetCity': session.targetCity,
@@ -85,7 +90,7 @@ class MainMenu(Menu):
                 'date': session.date,
                 'userId': session.userId
             }
-            requests.post('http://localhost:100/search', json=data)
+            requests.post('http://localhost:2000/search', json=data)
 
     def _notifyUserAboutCurrentSearch(self, session):
         """
@@ -97,7 +102,7 @@ class MainMenu(Menu):
         """
         try:
             logger.info('Getting information about current search')
-            response = requests.get('http://localhost:100/search/{0}'.format(session.userId))
+            response = requests.get('http://localhost:2000/search/{0}'.format(session.userId))
             if response.status_code == 200:
                 searchingInfo = 'В данный момент происходит поиск билета из {sourceCity} в {targetCity}, дата - {date}'.format(
                     sourceCity=response.json()['sourceCity'],
@@ -134,7 +139,7 @@ class MainMenu(Menu):
 
         elif action == ButtonsEnum.SEARCH_STOP['action']['label']:
             logger.info('Execute <SEARCH_STOP> action')
-            requests.delete('http://localhost:100/search/{0}'.format(session.userId))
+            requests.delete('http://localhost:2000/search/{0}'.format(session.userId))
         else:
             logger.info('Execute <INCORRECT_MAIN_MENU> action')
 

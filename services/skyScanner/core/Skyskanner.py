@@ -7,11 +7,16 @@ Created on 29.07.2018
 """
 import threading
 import json
+import sys
+import os
+
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
 
 import requests
 
-from searchService.core.skyskannerClasses.Itinerary import Itinerary
-from searchService.core.utils.utils import findLegs
+from skyScanner.core.skyskannerClasses.Itinerary import Itinerary
+from skyScanner.core.utils.utils import findLegs
 
 
 class SkyScanner:

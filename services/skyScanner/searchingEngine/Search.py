@@ -1,12 +1,17 @@
 import requests
 import time
 import threading
+import sys
+import os
 
-from searchService.core.filters import filter_onlyCheapest, filter_onlyDirect
-from searchService.core.RequestData import RequestData
-from searchService.core.Skyskanner import SkyScanner
-from searchService.searchingEngine.constants import cities
-from vkApi.api import apiRequest
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+from skyScanner.core.filters import filter_onlyCheapest, filter_onlyDirect
+from skyScanner.core.RequestData import RequestData
+from skyScanner.core.Skyskanner import SkyScanner
+from skyScanner.searchingEngine.constants import cities
+from modules.api import apiRequest
 
 
 class Search(threading.Thread):

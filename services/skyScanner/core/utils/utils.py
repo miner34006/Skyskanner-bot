@@ -6,7 +6,13 @@ Created on 30.07.2018
 :author: Polianok Bogdan
 """
 
-from searchService.core.skyskannerClasses.Leg import Leg
+import sys
+import os
+
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+from skyScanner.core.skyskannerClasses.Leg import Leg
 
 
 def findLegs(jsonData, legId):

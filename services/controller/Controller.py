@@ -6,10 +6,15 @@ Created on 11.01.2019
 :author: Polianok Bogdddsdan
 """
 
+import sys
+import os
 import requests
 import logging
 
-from vkApi.LongPoll import LongPoll, ADD_MESSAGE
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+from modules.LongPoll import LongPoll, ADD_MESSAGE
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +95,7 @@ class Controller:
 
 if __name__ == '__main__':
     logging.basicConfig(
-        filename='./logs/controller.log',
+        filename='/var/lib/skyscanner/logs/controller.log',
         format='[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S',
         level=logging.INFO

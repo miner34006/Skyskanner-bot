@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.config.from_object(config.DevelopmentConfig)
 
 logging.basicConfig(
-    filename='./logs/botService.log',
+    filename='/var/lib/skyscanner/logs/skyscanner.log',
     format='[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S',
     level=logging.DEBUG
