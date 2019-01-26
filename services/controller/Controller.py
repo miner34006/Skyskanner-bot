@@ -82,7 +82,7 @@ class Controller:
                         logger.info('Revieve "{0}" message from user, notify botService'.format(message))
                         try:
                             response = requests.post(
-                                'http://localhost:5000/receive',
+                                'http://172.20.128.3:5000/receive',
                                 json={'userId': userId, 'message': message},
                                 cookies=self._getCookie(userId)
                             )
@@ -91,17 +91,3 @@ class Controller:
                             continue
 
                         self._setCookie(userId, response.cookies)
-
-
-if __name__ == '__main__':
-    logging.basicConfig(
-        filename='/var/lib/skyscanner/logs/controller.log',
-        format='[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S',
-        level=logging.INFO
-    )
-    logging.getLogger("requests").setLevel(logging.DEBUG)
-    logging.getLogger("urllib3").setLevel(logging.DEBUG)
-
-    controller = Controller()
-    controller.start()

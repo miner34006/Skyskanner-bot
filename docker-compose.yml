@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  controller:
+    container_name: controller
+    build:
+      context: .
+      dockerfile: ./services/controller/Dockerfile
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.2
+    restart: always
+    stdin_open: true
+    tty: true
+
+  vkbot:
+    container_name: vkBot
+    build:
+      context: .
+      dockerfile: ./services/vkBot/Dockerfile
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.3
+    restart: always
+    stdin_open: true
+    tty: true
+
+  skyscanner:
+    container_name: skyscanner
+    build:
+      context: .
+      dockerfile: ./services/skyScanner/Dockerfile
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.4
+    restart: always
+    stdin_open: true
+    tty: true
+
+networks:
+  static-network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

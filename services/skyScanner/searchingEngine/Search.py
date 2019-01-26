@@ -51,7 +51,7 @@ class Search(threading.Thread):
                     option=cheapestOption,
                     link=response['response']['short_url']
                 )
-                requests.post('http://localhost:5000/send', json={'userId': self.userId, 'message': message})
+                requests.post('http://172.20.128.3:5000/send', json={'userId': self.userId, 'message': message})
                 tries = 0
 
             if self.stopThread:
