@@ -79,8 +79,9 @@ class SkyScanner:
                 if 'amount' not in option['price'].keys():
                     continue
 
-                legs = findLegs(jsonResponse, itinerary['leg_ids'][0])
-                itineraries.append(Itinerary(itinerary, legs))
+                for legId in itinerary['leg_ids']:
+                    legs = findLegs(jsonResponse, legId)
+                    itineraries.append(Itinerary(itinerary, legs))
 
         return itineraries
 
@@ -98,5 +99,5 @@ class SkyScanner:
             itineraries = self.getItineraries(*args, **kwargs)
             for filter in filters:
                 itineraries = filter(itineraries)
-
+                
             yield itineraries

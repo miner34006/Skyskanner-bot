@@ -41,6 +41,9 @@ class Search(threading.Thread):
         for itineraries in self.scanner.scan(filters, trip=trip, useProxy=True):
             try:
                 cheapestOption = itineraries[0].getCheapestPriceOptions()[0]
+                for itinerarie in itineraries:
+                    if itinerarie.getCheapestPriceOptions()[0] < cheapestOption:
+                        cheapestOption = itinerarie.getCheapestPriceOptions()[0]
             except Exception as _:
                 continue
 
