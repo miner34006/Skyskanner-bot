@@ -1,7 +1,14 @@
+import sys
+import os
 import logging
 
+import requests
 from flask import Flask
-import config
+
+skyenv = os.environ.get('SKYENV', '/home/skyenv/')
+sys.path.append(skyenv)
+
+import vkBot.config as config
 
 app = Flask(__name__)
 app.config.from_object(config.DevelopmentConfig)

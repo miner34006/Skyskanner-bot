@@ -8,7 +8,6 @@ Created on 12.01.2018
 
 import sys
 import os
-import json
 import logging
 
 import requests
@@ -106,12 +105,11 @@ class LongPoll:
         """
         while True:
             response = requests.get(self.longPollBaseUrl, self.longPollPayload)
-            jsonResponse = json.loads(response.text)
-            logger.debug('Get response from longPoll - {0}'.format(jsonResponse))
+            logger.debug('Get response from longPoll - {0}'.format(response.json()))
 
-            if 'ts' not in jsonResponse:
+            if 'ts' not in response.json():
                 self._setUpLongPoll()
                 continue
 
-            self._updateTs(jsonResponse['ts'])
-            yield jsonResponse['updates']
+            self._updateTs(response.json()['ts'])
+            yield response.json()['updates']

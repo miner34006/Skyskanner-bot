@@ -4,9 +4,9 @@
 :author: Polianok Bogdan
 """
 
+import sys
 import logging
 import requests
-import json
 
 
 BASE_URL = "https://api.vk.com/method/"
@@ -32,6 +32,9 @@ def apiRequest(method, payload=None):
     if not ('access_token' in payload):
         payload.update({'access_token': GROUP_TOKEN, 'v': V})
 
-    response = requests.post(BASE_URL + method, payload)
-    data = json.loads(response.text)
-    return data
+    try:
+        response = requests.post(BASE_URL + method, payload)
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logger.error(e)
+        sys.exit(1)
