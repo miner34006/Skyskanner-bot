@@ -22,7 +22,7 @@ python tests/yourTest.py
 
 ## Authors
 
-* **Polyanok Bogdan**
+* **Polianok Bogdan**
 
 ## License
 
