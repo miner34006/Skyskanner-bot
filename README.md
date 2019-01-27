@@ -1,6 +1,12 @@
 # Ticket parser for vk
 
 This program allows you to search for flights according to various criteria with notification when their cost decreases.
+The program is built on microservice architecture. It is divided into 3 services (in plans to make 4 services with a database): 
+* controller, 
+* bot, 
+* scanning system (parser).
+
+The controller receives messages from users via vk longPoll server and sends instructions for the bot. Depending on the type of instruction, the bot determines the necessary actions and sends a response to the user.
 
 ## Getting Started
 
